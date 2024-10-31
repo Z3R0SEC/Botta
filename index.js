@@ -12,7 +12,7 @@ const VERIFY_TOKEN = 'pagebot';
 const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
 const COMMANDS_PATH = path.join(__dirname, 'commands');
 
-
+// Webhook verification
 app.get('/webhook', (req, res) => {
   const { 'hub.mode': mode, 'hub.verify_token': token, 'hub.challenge': challenge } = req.query;
 
@@ -24,14 +24,15 @@ app.get('/webhook', (req, res) => {
     return res.sendStatus(403);
   }
 
-  res.sendStatus(400);
+  res.sendStatus(400); // Bad request if neither mode nor token are provided
 });
 
-
+// Webhook event handling
 app.post('/webhook', (req, res) => {
   const { body } = req;
 
   if (body.object === 'page') {
+    // Ensure entry and messaging exist before iterating
     body.entry?.forEach(entry => {
       entry.messaging?.forEach(event => {
         if (event.message) {
@@ -48,7 +49,7 @@ app.post('/webhook', (req, res) => {
   res.sendStatus(404);
 });
 
-
+// Helper function for Axios requests
 const sendMessengerProfileRequest = async (method, url, data = null) => {
   try {
     const response = await axios({
@@ -64,6 +65,7 @@ const sendMessengerProfileRequest = async (method, url, data = null) => {
   }
 };
 
+// Load all command files from the "commands" directory
 const loadCommands = () => {
   return fs.readdirSync(COMMANDS_PATH)
     .filter(file => file.endsWith('.js'))

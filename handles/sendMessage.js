@@ -1,8 +1,10 @@
 const axios = require('axios');
 const path = require('path');
 
+// Helper function for POST requests
 const axiosPost = (url, data, params = {}) => axios.post(url, data, { params }).then(res => res.data);
 
+// Send a message with typing indicators
 const sendMessage = async (senderId, { text = '', attachment = null }, pageAccessToken) => {
   if (!text && !attachment) return;
 
@@ -10,9 +12,10 @@ const sendMessage = async (senderId, { text = '', attachment = null }, pageAcces
   const params = { access_token: pageAccessToken };
 
   try {
-    await axios.post(`https://graph.facebook.com/v21.0/me/presence/subscribe`, { recipient: { id: recipientId }, presence: { status: "online" } }, { params: { access_token: pageAccessToken } });
+    // Turn on typing indicator
     await axiosPost(url, { recipient: { id: senderId }, sender_action: "typing_on" }, params);
 
+    // Prepare message payload based on content
     const messagePayload = {
       recipient: { id: senderId },
       message: {}
@@ -32,8 +35,10 @@ const sendMessage = async (senderId, { text = '', attachment = null }, pageAcces
       };
     }
 
+    // Send the message
     await axiosPost(url, messagePayload, params);
 
+    // Turn off typing indicator
     await axiosPost(url, { recipient: { id: senderId }, sender_action: "typing_off" }, params);
 
   } catch (e) {
