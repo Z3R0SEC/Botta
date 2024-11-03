@@ -1,3 +1,4 @@
+Is my bot command fine ?
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
@@ -39,10 +40,10 @@ module.exports = {
           }
         });
 
-        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity || "1"}) has been placed.\n\nWe will contact you shortly for your order confirmation.` }, pageAccessToken);
+        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity || "1"}) has been placed.\n\nWe Will Contact You Shortly For Your Order Confirmation.` }, pageAccessToken);
       } catch (error) {
         console.error('Error placing the order:', error);
-        return sendMessage(senderId, { text: 'There was an error placing your order. We are aware of this issue and hope to get it fixed soon.' }, pageAccessToken);
+        return sendMessage(senderId, { text: 'There was an error placing your order. We Are Aware of this issue And hope to get it fixed.' }, pageAccessToken);
       }
     }
 
@@ -50,23 +51,23 @@ module.exports = {
       const response = await axios.get('https://codetta.x10.bz/mvelo', {
         params: { prompt: prompt, uid: senderId }
       });
-      if (response.data.reply && !response.data.photos) {
-         return sendMessage(senderId, { text: response.data.reply }, pageAccessToken);
-      } else if (response.data.photos) {
-         const selectedImages = response.data.photos.slice(0, 3);
+      if (resp.data.reply && !resp.data.photos) {
+         return sendMessage(senderId, { text: reply }, pageAccessToken);
+      } else if (resp.data.photos) {
+         const selectedImages = resp.data.photos.slice(0, 3);
          if (selectedImages.length === 0) {
-             await sendMessage(senderId, { text: `Sorry, I couldn't find the photos you're looking for in our database!` }, pageAccessToken);
+             await sendMessage(senderId, { text: `Sorry I Couldnt Find Photos Youre Looking For On Your Database!` }, pageAccessToken);
              return;
          }
-         await sendMessage(senderId, { text: `Fetching your requested photos!` }, pageAccessToken);
          for (const url of selectedImages) {
              const attachment = {
                type: 'image',
                payload: { url }
              };
+             await sendMessage(senderId, { text: `Fetching Your Requested Photos!!` }, pageAccessToken);
              await sendMessage(senderId, { attachment }, pageAccessToken);
          }
-      }
+     }
 
     } catch (error) {
       console.error('Error:', error);
