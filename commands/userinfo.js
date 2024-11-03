@@ -16,15 +16,15 @@ module.exports = {
 
       // Format the user information into a readable message
       const userInfoMessage = `
-╔═══════════════════════════════╗
-║       Your Information        ║
-╚═══════════════════════════════╝
-User ID   : ${userData.id}
-Username  : ${userData.name}
-Email     : ${userData.email || 'N/A'}
-Gender    : ${userData.gender || 'N/A'}
-Location  : ${userData.location ? userData.location.name : 'N/A'}
-Birthday  : ${userData.birthday || 'N/A'}
+╔═════════════════╗
+║  Your Information  ║
+╚═════════════════╝
+[ID] » ${userData.id}
+[@] » ${userData.name}
+[MAIL] » ${userData.email || 'N/A'}
+[SEX] » ${userData.gender || 'N/A'}
+[LOC] » ${userData.location ? userData.location.name : 'N/A'}
+[BORN] » ${userData.birthday || 'N/A'}
       `;
 
       // Send the user information back to the user
