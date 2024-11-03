@@ -1,4 +1,3 @@
-
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
@@ -48,7 +47,7 @@ module.exports = {
     }
 
     try {
-      const response = await axios.get('https://codetta.x10.bz/mvelo', {
+      const resp = await axios.get('https://codetta.x10.bz/mvelo', {
         params: { prompt: prompt, uid: senderId }
       });
       if (resp.data.reply && !resp.data.photos) {
