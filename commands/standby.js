@@ -70,7 +70,7 @@ module.exports = {
 
     } catch (error) {
       console.error('Error:', error);
-      sendMessage(senderId, { text: 'There was an error generating the content. Please try again later. ' + error }, pageAccessToken);
+      sendMessage(senderId, { text: 'There was an error generating the content. Please try again later.' }, pageAccessToken);
     }
   }
 };
