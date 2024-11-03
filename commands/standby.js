@@ -16,7 +16,6 @@ module.exports = {
     const productKeywords = ['hoodie', 'tshirt', 'trouser', 'cap', 'hat', 'sweater'];
     const sizeKeywords = ['medium', 'large', 'small', 'xtra large', 'xtra small'];
     const quantityKeywords = ['one', 'two', 'three', '1', '2', '3'];
-    const quantityMap = { 'one': 1, 'two': 2, 'three': 3, '1': 1, '2': 2, '3': 3 };
     const containsProduct = productKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
     const containsSize = sizeKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
     const containsQuantity = quantityKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
@@ -24,7 +23,7 @@ module.exports = {
     if (containsProduct && containsSize && containsQuantity) {
       const orderType = productKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
       const sizeType = sizeKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
-      const quantity = quantityMap[quantityKeywords.find(keyword => prompt.toLowerCase().includes(keyword))] || 1;
+      const quantity = quantityKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
 
       const orderData = `Order: ${orderType} | Size: ${sizeType} | Quantity: ${quantity}`;
 
@@ -40,7 +39,7 @@ module.exports = {
           }
         });
 
-        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity}) has been placed.\n\nWe will contact you shortly for your order confirmation.` }, pageAccessToken);
+        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity || "1"}) has been placed.\n\nWe will contact you shortly for your order confirmation.` }, pageAccessToken);
       } catch (error) {
         console.error('Error placing the order:', error);
         return sendMessage(senderId, { text: 'There was an error placing your order. We are aware of this issue and hope to get it fixed soon.' }, pageAccessToken);
