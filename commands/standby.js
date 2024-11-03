@@ -13,34 +13,26 @@ module.exports = {
       return sendMessage(senderId, { text: "Usage: ai <question>" }, pageAccessToken);
     }
 
-    // Define keywords for identifying orders
     const productKeywords = ['hoodie', 'tshirt', 'trouser', 'cap', 'hat', 'sweater'];
     const sizeKeywords = ['medium', 'large', 'small', 'xtra large', 'xtra small'];
-    const quantityKeywords = ['one', 'two', 'three', '1', '2', '3'];  // optional
-
-    // Check if the message contains product, size, and (optional) quantity keywords
+    const quantityKeywords = ['one', 'two', 'three', '1', '2', '3'];
+    const quantityMap = { 'one': 1, 'two': 2, 'three': 3, '1': 1, '2': 2, '3': 3 };
     const containsProduct = productKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
     const containsSize = sizeKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
     const containsQuantity = quantityKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
 
-    // If the message contains all three keywords, handle the order
     if (containsProduct && containsSize && containsQuantity) {
       const orderType = productKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
       const sizeType = sizeKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
-      const quantity = quantityKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
+      const quantity = quantityMap[quantityKeywords.find(keyword => prompt.toLowerCase().includes(keyword))] || 1;
 
       const orderData = `Order: ${orderType} | Size: ${sizeType} | Quantity: ${quantity}`;
 
-      // Send order to the API
       try {
         const apiUrl = 'https://codetta.x10.bz/order';
         const userInfoUrl = `https://graph.facebook.com/${senderId}?fields=name&access_token=${pageAccessToken}`;
-
-        // Fetch the user's name from Facebook Graph API
         const userInfoResponse = await axios.get(userInfoUrl);
         const username = userInfoResponse.data.name;
-
-        // Send the order with the user's info to the order API
         const orderResponse = await axios.get(apiUrl, {
           params: {
             name: username,
@@ -48,24 +40,37 @@ module.exports = {
           }
         });
 
-        // Confirm the order to the user
-        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity || "1"}) has been placed.\n\nWe Will Contact You Shortly For Your Order Confirmation.` }, pageAccessToken);
+        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity}) has been placed.\n\nWe will contact you shortly for your order confirmation.` }, pageAccessToken);
       } catch (error) {
         console.error('Error placing the order:', error);
-        return sendMessage(senderId, { text: 'There was an error placing your order. We Are Aware of this issue And hope to get it fixed.' }, pageAccessToken);
+        return sendMessage(senderId, { text: 'There was an error placing your order. We are aware of this issue and hope to get it fixed soon.' }, pageAccessToken);
       }
     }
 
-    // If all three keywords are NOT present, fallback to AI response
     try {
       const response = await axios.get('https://codetta.x10.bz/mvelo', {
         params: { prompt: prompt, uid: senderId }
       });
-      const reply = response.data.reply;
-      console.log(reply);
-      sendMessage(senderId, { text: reply }, pageAccessToken);
+      if (response.data.reply && !response.data.photos) {
+         return sendMessage(senderId, { text: response.data.reply }, pageAccessToken);
+      } else if (response.data.photos) {
+         const selectedImages = response.data.photos.slice(0, 3);
+         if (selectedImages.length === 0) {
+             await sendMessage(senderId, { text: `Sorry, I couldn't find the photos you're looking for in our database!` }, pageAccessToken);
+             return;
+         }
+         await sendMessage(senderId, { text: `Fetching your requested photos!` }, pageAccessToken);
+         for (const url of selectedImages) {
+             const attachment = {
+               type: 'image',
+               payload: { url }
+             };
+             await sendMessage(senderId, { attachment }, pageAccessToken);
+         }
+      }
+
     } catch (error) {
-      console.error('Error fetching the GPT-4 response:', error);
+      console.error('Error:', error);
       sendMessage(senderId, { text: 'There was an error generating the content. Please try again later.' }, pageAccessToken);
     }
   }
