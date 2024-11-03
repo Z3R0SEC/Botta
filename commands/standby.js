@@ -1,4 +1,4 @@
-Is my bot command fine ?
+
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
