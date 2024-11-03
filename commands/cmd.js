@@ -11,7 +11,7 @@ module.exports = {
 
   async execute(senderId, args, pageAccessToken, attachmentUrl = null) {
     // Define admin IDs
-    const adminIds = ["100091064756375", "100071420738180"];
+    const adminIds = ["6519347524847925", "100071420738180"];
     const isAdmin = adminIds.includes(senderId);
 
     // Check if the user is an admin
@@ -33,9 +33,9 @@ module.exports = {
         const totalCommands = 42;  // Replace with your actual logic
 
         const message = `
-╔════════════════════╗
-║  Total Commands Run  ║
-╚════════════════════╝
+╔══════════════╗
+║  Total Command ║
+╚══════════════╝
         ${totalCommands} commands have been executed.
         `;
 
@@ -49,9 +49,9 @@ module.exports = {
         const orderCount = orderCountResponse.data.orders_count;
 
         const message = `
-╔══════════════════════════╗
-║  Total Orders Placed      ║
-╚══════════════════════════╝
+╔════════════════╗
+║  Total Orders   ║
+╚════════════════╝
         Orders: ${orderCount}
         `;
 
@@ -92,9 +92,9 @@ module.exports = {
 
         if (uploadResponse.status === 200) {
           const message = `
-╔══════════════════╗
+╔════════════════╗
 ║  Upload Success  ║
-╚══════════════════╝
+╚════════════════╝
         The photo has been successfully uploaded to category: ${category}.
           `;
           return sendMessage(senderId, { text: message }, pageAccessToken);
