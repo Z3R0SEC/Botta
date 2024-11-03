@@ -15,23 +15,21 @@ module.exports = {
 
     // Define keywords for identifying orders
     const productKeywords = ['hoodie', 'tshirt', 'trouser', 'cap', 'hat', 'sweater'];
-    const sizeKeywords = ['size', 'medium', 'large', 'small', 'xtra large', 'xtra small'];
+    const sizeKeywords = ['medium', 'large', 'small', 'xtra large', 'xtra small'];
+    const quantityKeywords = ['one', 'two', 'three', '1', '2', '3'];  // optional
 
-    // Check if the prompt contains any product keywords
+    // Check if the message contains product, size, and (optional) quantity keywords
     const containsProduct = productKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
     const containsSize = sizeKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
+    const containsQuantity = quantityKeywords.some(keyword => prompt.toLowerCase().includes(keyword));
 
-    // If the message contains a product keyword, but no size or details, prompt the user for more info
-    if (containsProduct && !containsSize) {
-      return sendMessage(senderId, { text: "Please provide the size (e.g., medium, large, xtra large) for your order." }, pageAccessToken);
-    }
-
-    // If both product and size are mentioned, handle the order
-    if (containsProduct && containsSize) {
+    // If the message contains all three keywords, handle the order
+    if (containsProduct && containsSize && containsQuantity) {
       const orderType = productKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
       const sizeType = sizeKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
+      const quantity = quantityKeywords.find(keyword => prompt.toLowerCase().includes(keyword));
 
-      const orderData = `Order: ${orderType} | Size: ${sizeType}`;
+      const orderData = `Order: ${orderType} | Size: ${sizeType} | Quantity: ${quantity}`;
 
       // Send order to the API
       try {
@@ -51,14 +49,14 @@ module.exports = {
         });
 
         // Confirm the order to the user
-        return sendMessage(senderId, { text: `Thank you, ${username}! Your order for a ${orderType} (Size: ${sizeType}) has been placed.` }, pageAccessToken);
+        return sendMessage(senderId, { text: `Thank you, ${username.split(" ")[0]}!\nYour order for a ${orderType} (Size: ${sizeType}, Quantity: ${quantity || "1"}) has been placed.\n\nWe Will Contact You Shortly For Your Order Confirmation.` }, pageAccessToken);
       } catch (error) {
         console.error('Error placing the order:', error);
-        return sendMessage(senderId, { text: 'There was an error placing your order. Please try again later.' }, pageAccessToken);
+        return sendMessage(senderId, { text: 'There was an error placing your order. We Are Aware of this issue And hope to get it fixed.' }, pageAccessToken);
       }
     }
 
-    // If no product keywords are detected, fall back to regular AI (GPT-4) processing
+    // If all three keywords are NOT present, fallback to AI response
     try {
       const response = await axios.get('https://codetta.x10.bz/mvelo', {
         params: { prompt: prompt, uid: senderId }
