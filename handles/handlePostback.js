@@ -7,7 +7,35 @@ const handlePostback = async (event, pageAccessToken) => {
   if (!senderId || !payload) return console.error('Invalid postback event object');
 
   try {
-    await sendMessage(senderId, { text: `You sent a postback with payload: ${payload}` }, pageAccessToken);
+    // Prepare a button message
+    const buttonMessage = {
+      recipient: { id: senderId },
+      message: {
+        attachment: {
+          type: "template",
+          payload: {
+            template_type: "button",
+            text: "Welcome! How can I assist you today?",
+            buttons: [
+              {
+                type: "postback",
+                title: "Get Started",
+                payload: "GET_STARTED"
+              },
+              {
+                type: "web_url",
+                url: "https://yourclothingstore.com",
+                title: "Shop Now"
+              }
+            ]
+          }
+        }
+      }
+    };
+
+    // Send the button message
+    await sendMessage(senderId, buttonMessage, pageAccessToken);
+    
   } catch (err) {
     console.error('Error sending postback response:', err.message || err);
   }
