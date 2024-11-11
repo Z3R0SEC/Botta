@@ -4,7 +4,7 @@ module.exports = {
   usage: 'uid',
   author: 'coffee',
 
-  async execute(senderId, args, pageAccessToken) {
+  async execute(senderId, sendMessage, args, pageAccessToken) {
     sendMessage(senderId, { text: `${senderId}` }, pageAccessToken);
   }
 };
