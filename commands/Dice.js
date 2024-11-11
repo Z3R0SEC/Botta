@@ -4,7 +4,7 @@ module.exports = {
   usage: 'diceroll',
   author: 'Thabani',
 
-  async execute(senderId, args, pageAccessToken) {
+  async execute(senderId, sendMessage, args, pageAccessToken) {
     const result = Math.floor(Math.random() * 6) + 1;
     sendMessage(senderId, { text: `[»] Roll: ${result}!` }, pageAccessToken);
   }
