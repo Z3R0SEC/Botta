@@ -1,10 +1,12 @@
+const { sendMessage } = require('../handles/sendMessage');
+
 module.exports = {
   name: 'gen',
   description: 'Send a funny dancing GIF',
   usage: 'gen',
   author: 'z3r0sec',
 
-  async execute(senderId, sendMessage, args, pageAccessToken) {
+  async execute(senderId, args, pageAccessToken) {
     const prompt = args.join("+")
     const gifUrl = `https://joshweb.click/api/flux?prompt=${prompt}&model=4`;
 
