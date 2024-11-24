@@ -1,0 +1,7 @@
+from requests import get, post
+
+api = "https://raaj-api.x10.bz/ai"
+
+req = get(api, params={ "user": "Momi", "prompt": "Please Give me the code"})
+
+print(req.json())
