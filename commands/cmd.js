@@ -43,7 +43,7 @@ module.exports = {
 
     const helpMessage = `
 ━━━━━━━━━━━━━━
- ^⁠_⁠^ ${name.spit(" ")[0]}
+ ^⁠_⁠^ ${name.split(" ")[0]}
 ╭─╼━━━━━━━━╾─╮
 ${commands.join('\n')}
 ╰─━━━━━━━━━╾─╯
