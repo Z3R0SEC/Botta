@@ -7,20 +7,29 @@ module.exports = {
   author: 'Mota - Dev',
 
   async execute(senderId, args, pageAccessToken) {
-    const buttons = [
-      { type: 'postback', title: 'Option 1', payload: 'BUTTON_1' },
-      { type: 'postback', title: 'Option 2', payload: 'BUTTON_2' },
-      { type: 'web_url', title: 'Visit Website', url: 'https://example.com' },
-      { type: 'postback', title: 'Help', payload: 'HELP' },
-    ];
-
     const messageData = {
       attachment: {
         type: 'template',
         payload: {
           template_type: 'button',
-          text: 'Choose an option:',
-          buttons: buttons,
+          text: 'Welcome to the bot! Choose an option below:',
+          buttons: [
+            {
+              type: 'postback',
+              title: 'Commands',
+              payload: 'HELP',
+            },
+            {
+              type: 'postback',
+              title: 'About',
+              payload: 'ABOUT',
+            },
+            {
+              type: 'postback',
+              title: 'Prefix',
+              payload: 'PREFIX',
+            },
+          ],
         },
       },
     };
@@ -30,6 +39,7 @@ module.exports = {
       await sendMessage(senderId, { messageData }, pageAccessToken);
     } catch (error) {
       await sendMessage(senderId, { text: 'Failed to send buttons. Please try again later.' }, pageAccessToken);
+      console.error('Error sending buttons:', error.message);
     }
   },
 };
