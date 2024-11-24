@@ -36,6 +36,7 @@ async function handleMessage(event, pageAccessToken) {
     const usr = await axios.get(grP);
     user = usr.data;
   } catch (error) {
+    user = "friend";
     console.error('Error fetching user information:', error);
     return await sendMessage(senderId, { text: "Unable to retrieve user information." }, pageAccessToken);
   }
@@ -44,7 +45,7 @@ async function handleMessage(event, pageAccessToken) {
     if (commands.has(commandName.toLowerCase())) {
       await commands.get(commandName.toLowerCase()).execute(senderId, args, pageAccessToken, user);
     } else if (commands.has('ai')) {
-      await commands.get('ai').execute(senderId, [messageText], pageAccessToken);
+      await commands.get('ai').execute(senderId, [messageText], pageAccessToken, user);
     } else {
       await sendMessage(senderId, { text: "Command not found, and fallback AI command is missing." }, pageAccessToken);
     }
