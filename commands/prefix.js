@@ -7,17 +7,13 @@ module.exports = {
   author: 'Mota - Dev',
 
   async execute(senderId, args, pageAccessToken, user) {
-     const photo = "https://www.pinterest.com/pin/791729168715206166/"
-     const uid = senderId;
-     const token = pageAccessToken;
-     const attachment = {
-        type: 'image',
-        payload: { photo }
-     };
+    const uid = senderId;
+    const token = pageAccessToken;
+    const photo = 'https://www.pinterest.com/pin/791729168715206166/';
 
-     const msg = `
+    const msg = `
 ━━━━━━━━━━━━━━
-ʘ⁠‿⁠ʘ Hi ${user.name.split(" ")[0] || "Friend"}
+ʘ⁠‿⁠ʘ Hi ${user.name.split(' ')[0] || 'Friend'}
 ━━━━━━━━━━━━━━
 › Prefix: 「 null 」
 › Version: 「 V4.0 」
@@ -26,12 +22,17 @@ module.exports = {
 ━━━━━━━━━━━━━━
 `;
 
-  try {
-     await sendMessage(uid, { text: msg }, token);
-     await sendMessage(uid, { attachment }, token);
-  } catch (error) {
-     await sendMessage(uid, { text: msg }, token);
-     await sendMessage(uid, { attachment }, token)
-  }
- }
+    const attachment = {
+      type: 'image',
+      payload: { url: photo },
+    };
+
+    try {
+      await sendMessage(uid, { text: msg }, token);
+      await sendMessage(uid, { attachment }, token);
+    } catch (error) {
+      console.error('Error sending prefix message:', error);
+      await sendMessage(uid, { text: 'An error occurred while sending the prefix message.' }, token);
+    }
+  },
 };
