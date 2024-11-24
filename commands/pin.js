@@ -8,34 +8,33 @@ module.exports = {
   author: 'Mota - Dev',
 
   async execute(senderId, args, pageAccessToken, user) {
-
     const token = pageAccessToken;
     const id = senderId;
-    const name = user.name;
 
-    if (!args) {
+    if (!args || args.length === 0) {
       await sendMessage(id, { text: 'Please provide a search query.' }, token);
       return;
     }
 
     try {
-      const { data } = await axios.get(`https://hiroshi-api.onrender.com/image/pinterest?search=${encodeURIComponent(args.join(" "))}`);
-      const pics = data.data.slice(0, 10);
+      const query = encodeURIComponent(args.join(' '));
+      const { data } = await axios.get(`https://hiroshi-api.onrender.com/image/pinterest?search=${query}`);
+      const pics = data?.data?.slice(0, 10) || [];
 
-      if (pics.length == 0) {
-         return await sendMessage(id, { text: "No Images Were Found Please Try Again Latter" }, token);
+      if (pics.length === 0) {
+        return await sendMessage(id, { text: 'No images were found. Please try again later.' }, token);
       }
 
       for (const url of pics) {
         const attachment = {
-           type: 'image',
-           payload: { url }
+          type: 'image',
+          payload: { url },
         };
         await sendMessage(id, { attachment }, token);
       }
-
     } catch (error) {
-        return sendMessage(id, { text: error }, token);
+      console.error('Error fetching images:', error);
+      await sendMessage(id, { text: 'An error occurred while fetching images. Please try again later.' }, token);
     }
-  };
+  },
 };
