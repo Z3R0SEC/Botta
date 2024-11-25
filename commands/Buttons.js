@@ -1,4 +1,4 @@
-const { sendMessage } = require('../handles/sendMessage');
+const { sendMessage, sendButton } = require('../handles/sendMessage');
 
 module.exports = {
   name: 'buttons',
@@ -7,38 +7,16 @@ module.exports = {
   author: 'Mota - Dev',
 
   async execute(senderId, args, pageAccessToken) {
-    const messageData = {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'button',
-          text: 'Welcome to the bot! Choose an option below:',
-          buttons: [
-            {
-              type: 'postback',
-              title: 'Commands',
-              payload: 'HELP',
-            },
-            {
-              type: 'postback',
-              title: 'About',
-              payload: 'ABOUT',
-            },
-            {
-              type: 'postback',
-              title: 'Prefix',
-              payload: 'PREFIX',
-            },
-          ],
-        },
-      },
-    };
 
     try {
-      await sendMessage(senderId, messageData, pageAccessToken);
-      await sendMessage(senderId, { messageData }, pageAccessToken);
+      await sendButton(senderId, "Choose an option:", [
+  { type: "postback", title: "Commands", payload: "HELP" },
+  { type: "postback", title: "About", payload: "ABOUT" },
+  { type: "web_url", title: "Visit Website", url: "https://example.com" }
+], pageAccessToken);
+      
     } catch (error) {
-      await sendMessage(senderId, { text: 'Failed to send buttons. Please try again later.' }, pageAccessToken);
+      await sendMessage(senderId, { text: 'Failed to send buttons. Please try again later.'+error }, pageAccessToken);
       console.error('Error sending buttons:', error.message);
     }
   },
