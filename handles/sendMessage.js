@@ -48,4 +48,27 @@ const sendMessage = async (senderId, { text = '', attachment = null }, pageAcces
   }
 };
 
-module.exports = { sendMessage };
+const sendButton = async (senderId, text, buttons, pageAccessToken) => {
+  const payload = {
+    recipient: { id: senderId },
+    message: {
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "button",
+          text,
+          buttons
+        }
+      }
+    }
+  };
+
+  try {
+    const response = await axios.post(`https://graph.facebook.com/v21.0/me/messages?access_token=${pageAccessToken}`, payload);
+    console.log('Button message sent:', response.data);
+  } catch (error) {
+    console.error('Error sending button message:', error.response?.data || error.message);
+  }
+};
+
+module.exports = { sendMessage, sendButton };
