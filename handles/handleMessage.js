@@ -36,9 +36,9 @@ async function handleMessage(event, pageAccessToken) {
     const usr = await axios.get(grP);
     user = usr.data;
   } catch (error) {
-    user = "friend";
+    user = { name: "Friend" };
     console.error('Error fetching user information:', error);
-    return await sendMessage(senderId, { text: "Unable to retrieve user information." }, pageAccessToken);
+    // return await sendMessage(senderId, { text: "Unable to retrieve user information." }, pageAccessToken);
   }
 
   try {
