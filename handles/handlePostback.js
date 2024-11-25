@@ -1,39 +1,24 @@
-const { sendMessage } = require('./sendMessage');
-const { handleMessage } = require('./handleMessage');  // Import the handleMessage function for command execution
+const { sendMessage, sendButton } = require('./sendMessage');
 
 const handlePostback = async (event, pageAccessToken) => {
   const { id: senderId } = event.sender || {};
   const { payload } = event.postback || {};
 
   if (!senderId || !payload) {
-    console.error('Invalid postback event object');
-    return;
+    return console.error('Invalid postback event object');
   }
 
   try {
-    // Handle the postback based on payload
-    switch (payload) {
-      case 'HELP':
-        // Execute the 'cmd' command or any other command you want when 'HELP' is triggered
-        await handleMessage({ sender: { id: senderId }, message: { text: '-cmd' } }, pageAccessToken);
-        break;
-
-      case 'ABOUT':
-        // Execute the 'about' command or any other command for the 'ABOUT' payload
-        await handleMessage({ sender: { id: senderId }, message: { text: '-about' } }, pageAccessToken);
-        break;
-
-      case 'PREFIX':
-        // Execute the 'prefix' command or any other command for the 'PREFIX' payload
-        await handleMessage({ sender: { id: senderId }, message: { text: '-prefix' } }, pageAccessToken);
-        break;
-
-      default:
-        await sendMessage(senderId, { text: `Unknown command: ${payload}` }, pageAccessToken);
+    if (payload === "HELP") {
+      await sendButton(senderId, "To View Commands Or Get Command List Please Type: cmd", [ {"type": "phone_number", "title": "Call Me", "payload": "+27847611848"} ], pageAccessToken);
+    } else if (payload === "ABOUT") {
+      await sendButton(senderId, "Hi, Thanks For Your Interest In Knowing My Dev!\n\nPlease Click Any Button Below To know More About Me", [ {"type": "web_url", "title": "Facebook", "url": "https://www.facebook.com/profile.php?id=100091064756375"}, {"type": "web_url", "title": "Whatsapp", "url": "https://wa.me/+27847611848"} ], pageAccessToken);
+    } else {
+      await sendButton(senderId, "Hello, ‹ Friend ›🙂❤️\n\nThank You For Reaching Out To My ChatBot\nNOTE:.\n\n› Works Better On Messenger\n›Improvement And More Features To Come.\n\nClick Below Button To Learn More About me!\n", [ {"type": "web_url", "title": "Fund Me", "url": "https://pay.capitecbank.co.za/payme/ZST5XN"}, {"type": "web_url", "title": "RaaJ Ai Api", "url": "https/raaj-api.x10.bz/"}, {"type": "web_url", "title": "Whatsapp Us", "url": "https://wa.me/+27847611848"}, {"type": "web_url", "title": "Admin FB", "url": "https://www.facebook.com/profile.php?id=100091064756375"} ], pageAccessToken);
+      await sendMessage(senderId, { text: `You clicked: ${payload}` }, pageAccessToken);
     }
   } catch (err) {
     console.error('Error sending postback response:', err.message || err);
-    await sendMessage(senderId, { text: 'There was an error processing your request.' }, pageAccessToken);
   }
 };
 
