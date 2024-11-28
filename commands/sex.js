@@ -3,7 +3,7 @@ const { sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
   name: 'xxx',
-  description: 'Fetch and send the video link from the API.',
+  description: 'Fetch and send video links from the API.',
   async execute(senderId, args, pageAccessToken) {
     if (!args.length) {
       return await sendMessage(
@@ -28,16 +28,18 @@ module.exports = {
         );
       }
 
-      // Extract the first video result
-      const video = videos[0];
-      const videoUrl = video.video;
+      // Send the first video URL
+      const video = videos[0]; // Get the first video result
+      const messageContent = {
+        attachment: {
+          type: 'video',
+          payload: {
+            url: video.video,
+          },
+        },
+      };
 
-      // Send the video link
-      await sendMessage(
-        senderId,
-        { text: `Here is the video link: ${videoUrl}` },
-        pageAccessToken
-      );
+      await sendMessage(senderId, messageContent, pageAccessToken);
     } catch (error) {
       console.error('Error fetching video from API:', error.message || error);
       await sendMessage(
