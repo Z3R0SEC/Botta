@@ -1,10 +1,18 @@
-const { sendMessage } = require('../handles/sendMessage');      const axios = require('axios');                                                                                                 module.exports = {
-   name: 'filescan',                                               description: 'Scan for exposed sensitive files on a website',   usage: 'filescan <url>',
+const { sendMessage } = require('../handles/sendMessage');
+const axios = require('axios');
+
+module.exports = {
+   name: 'filescan',
+   description: 'Scan for exposed sensitive files on a website',   usage: 'filescan <url>',
    author: 'Mota - Dev',
 
-   async execute(senderId, args, token) {                             const url = args[0];
-      if (!url) {                                                        return sendMessage(senderId, { text: "Please provide a URL to scan for sensitive files (e.g., https://example.com)." }, token);                                                              }
-                                                                      const sensitiveFiles = [
+   async execute(senderId, args, token) {                             
+      const url = args[0];
+      if (!url) {                                                        
+         return sendMessage(senderId, { text: "Please provide a URL to scan for sensitive files (e.g., https://example.com)." }, token);                                                             
+      }
+                                                                      
+      const sensitiveFiles = [
          ".env",
          "config.php",
          "backup.zip",
