@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { sendMessage } = require('../handles/sendMessage');
+const { sendButton, sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
    name: 'ai',
@@ -40,9 +40,9 @@ module.exports = {
 
          // Handle the response data
          if (response.data.reply) {
-            return sendMessage(id, { text: response.data.reply }, token);
+            return sendButton(id, `${response.data.reply}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
          } else if (response.data.error) {
-            return sendMessage(id, { text: `Error: ${response.data.error}` }, token);
+            return sendButton(id, `${response.data.error}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
          } else {
             return sendMessage(id, { text: "Unexpected response from AI." }, token);
          }
