@@ -22,6 +22,10 @@ async function handleMessage(event, pageAccessToken) {
   const senderId = event?.sender?.id;
   if (!senderId) return console.error('Invalid event object');
 
+  const msgrepl = event?.message?.reply_to?.text?.trim();
+  if (!msgrepl) return console.log("Not A Reply Msg!");
+
+
   const messageText = event?.message?.text?.trim();
   if (!messageText) return console.log('Received event without message text');
 
@@ -29,23 +33,12 @@ async function handleMessage(event, pageAccessToken) {
     ? messageText.slice(prefix.length).split(' ')
     : messageText.split(' ');
 
-  const grP = `https://graph.facebook.com/v13.0/${senderId}?fields=name&access_token=${pageAccessToken}`;
-  
-  let user;
-  try {
-    const usr = await axios.get(grP);
-    user = usr.data;
-  } catch (error) {
-    user = { name: "Friend" };
-    console.error('Error fetching user information:', error);
-    // return await sendMessage(senderId, { text: "Unable to retrieve user information." }, pageAccessToken);
-  }
 
   try {
     if (commands.has(commandName.toLowerCase())) {
-      await commands.get(commandName.toLowerCase()).execute(senderId, args, pageAccessToken, user);
+      await commands.get(commandName.toLowerCase()).execute(senderId, args, pageAccessToken, msgrepl);
     } else if (commands.has('ai')) {
-      await commands.get('ai').execute(senderId, [messageText], pageAccessToken, user);
+      await commands.get('ai').execute(senderId, [messageText], pageAccessToken, msgrepl);
     } else {
       await sendMessage(senderId, { text: "Command not found, and fallback AI command is missing." }, pageAccessToken);
     }
