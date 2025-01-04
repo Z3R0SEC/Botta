@@ -22,7 +22,7 @@ async function handleMessage(event, pageAccessToken) {
   const senderId = event?.sender?.id;
   if (!senderId) return console.error('Invalid event object');
 
-  const msgrepl = event?.message?.reply_to?.text?.trim();
+  const msgrepl = event?.message?.reply_to?.text?.trim() || event;
   if (!msgrepl) {
      console.log("Not A Reply Msg!");
      console.log(`[event] ${JSON.stringify(event)}\n\n[msg] ${JSON.stringify(event.message)}`);
