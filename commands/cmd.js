@@ -12,7 +12,7 @@ module.exports = {
   execute(senderId, args, pageAccessToken, user) {
     const commandsDir = path.join(__dirname, '../commands');
     const commandFiles = fs.readdirSync(commandsDir).filter(file => file.endsWith('.js'));
-    const name = user.name;
+    const name = senderId;
 
     if (args.length > 0) {
       const commandName = args[0].toLowerCase();
