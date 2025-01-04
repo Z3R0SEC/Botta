@@ -23,8 +23,9 @@ async function handleMessage(event, pageAccessToken) {
   if (!senderId) return console.error('Invalid event object');
 
   const msgrepl = event?.message?.reply_to?.text?.trim();
-  if (!msgrepl) return console.log("Not A Reply Msg!");
-
+  if (!msgrepl) {
+     console.log("Not A Reply Msg!");
+  }
 
   const messageText = event?.message?.text?.trim();
   if (!messageText) return console.log('Received event without message text');
