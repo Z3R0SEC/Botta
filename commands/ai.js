@@ -29,7 +29,7 @@ module.exports = {
 
       // API parameters
       const apiParams = {
-         user: user.name.split(" ")[0], // Use the first name of the user
+         user: id, // Use the first name of the user
          prompt: prompt
       };
       const apiUrl = "https://raaj-api.x10.bz/ai"; // External AI API endpoint
