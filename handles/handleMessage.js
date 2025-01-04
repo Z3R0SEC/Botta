@@ -25,7 +25,7 @@ async function handleMessage(event, pageAccessToken) {
   const msgrepl = event?.message?.reply_to?.text?.trim();
   if (!msgrepl) {
      console.log("Not A Reply Msg!");
-     console.log(`[event] ${event}\n\n[msg] ${event.message}`);
+     console.log(`[event] ${JSON.stringify(event)}\n\n[msg] ${JSON.stringify(event.message)}`);
   }
 
   const messageText = event?.message?.text?.trim();
