@@ -1,10 +1,8 @@
-const axios = require('axios');
-const { sendButton, sendMessage } = require('../handles/sendMessage'); // Add sendImage function
+const axios = require('axios');                            const { sendButton, sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
-   name: 'smart',
-   description: 'Chat with AI that can send images',
-   usage: 'smart <message>',
+   name: 'smart',                                             description: 'Chat with an AI',
+   usage: 'ai <message>',
    author: 'Mota - Dev',
 
    async execute(senderId, args, pageAccessToken, user) {
@@ -14,8 +12,7 @@ module.exports = {
 
       // Random default message list
       const defaultMessages = [
-         "Yo, Sup?",
-         "Yo, What's the Word?",
+         "Yo, Sup?",                                                "Yo, What's the Word?",
          "Need Something?",
          "Listening...",
          "What's New Dude?"
@@ -30,30 +27,26 @@ module.exports = {
          user: id,
          prompt: prompt
       };
-      const apiUrl = "https://raaj-api.x10.bz/smart";  // Assuming the new API for smart responses
+      const apiUrl = "https://raaj-api.x10.bz/smart";
 
       try {
          const response = await axios.get(apiUrl, { params: apiParams });
 
          if (response.data.reply) {
-            // Send a text reply if available
             return sendButton(id, `${response.data.reply}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
          } else if (response.data.image) {
             const url = response.data.image;
-            // Send an image if provided in response
             const attachment = {
-                type: 'image',
-                payload: { url },
+               type: 'image',
+               payload: { url },
             };
             return await sendMessage(id, { attachment }, token);
-         } else if (response.data.error) {
-            return sendButton(id, `${response.data.error}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
          } else {
-            return sendMessage(id, { text: "Unexpected response from AI." }, token);
+            return sendMessage(id, { text: "Error Originate from AI." }, token);
          }
       } catch (error) {
          console.error('Error while communicating with AI API:', error);
-         return sendMessage(id, { text: `An error occurred: ${error}` }, token);
+         return sendMessage(id, { text: "An error occurred while processing your request. Please try again later." }, token);
       }
    }
 };
