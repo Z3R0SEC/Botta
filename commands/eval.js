@@ -1,3 +1,6 @@
+const { sendButton, sendMessage } = require('../handles/sendMessage'); // Add sendImage function
+const axios = require('axios');
+
 module.exports = {
    name: 'eval',
    description: 'Execute JavaScript code',
