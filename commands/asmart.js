@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { sendButton, sendMessage, sendImage } = require('../handles/sendMessage'); // Add sendImage function
+const { sendButton, sendMessage } = require('../handles/sendMessage'); // Add sendImage function
 
 module.exports = {
    name: 'smart',
