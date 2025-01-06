@@ -53,7 +53,7 @@ module.exports = {
          }
       } catch (error) {
          console.error('Error while communicating with AI API:', error);
-         return sendMessage(id, { text: "An error occurred: ${error}` }, token);
+         return sendMessage(id, { text: `An error occurred: ${error}` }, token);
       }
    }
 };
