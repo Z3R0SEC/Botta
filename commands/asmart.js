@@ -39,10 +39,11 @@ module.exports = {
             // Send a text reply if available
             return sendButton(id, `${response.data.reply}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
          } else if (response.data.image) {
+            const url = response.data.image;
             // Send an image if provided in response
             const attachment = {
                 type: 'image',
-                payload: { response.data.image },
+                payload: { url },
             };
             return await sendMessage(id, { attachment }, token);
          } else if (response.data.error) {
