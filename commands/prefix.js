@@ -13,7 +13,7 @@ module.exports = {
 
     const msg = `
 ━━━━━━━━━━━━━━
-ʘ⁠‿⁠ʘ Hi ${user.name.split(' ')[0] || 'Friend'}
+ʘ⁠‿⁠ʘ Hi || 'Friend'
 ━━━━━━━━━━━━━━
 › Prefix: 「 null 」
 › Version: 「 V4.0 」
