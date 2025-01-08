@@ -7,6 +7,25 @@ const { handlePostback } = require('./handles/handlePostback');
 
 const app = express();
 app.use(express.json());
+let startTime = new Date();
+
+app.get('/keepalive', (req, res) => {
+  res.send('AI is alive!');
+});
+
+app.get('/', (req, res) => {
+  const currentTime = new Date();
+  const uptime = calculateUptime(startTime, currentTime);
+  res.json({ uptime: `${uptime.days} days - ${uptime.hours} hours - ${uptime.minutes} minutes` });
+});
+
+function calculateUptime(startTime, currentTime) {
+  const timeDiff = currentTime - startTime;
+  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+  return { days, hours, minutes };
+}
 
 const VERIFY_TOKEN = 'pagebot';
 const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
