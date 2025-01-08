@@ -41,12 +41,18 @@ module.exports = {
                payload: { url },
             };
             return await sendMessage(id, { attachment }, token);
+         } else if (response.data.song) {
+            const url = response.data.song;
+            const attachm = { type: 'audio', payload: { url }, };
+            return await sendMessage(id, { attachm }, token);
+         } else if (response.data.error) {
+            return sendMessage(id, { text: `Error: ‹ ${response.data.error} ›` }, token);
          } else {
-            return sendMessage(id, { text: "Error Originate from AI." }, token);
+            return sendMessage(id, { text: "RaaJ Api Returned Unexpected Data!" }, token);
          }
       } catch (error) {
          console.error('Error while communicating with AI API:', error);
-         return sendMessage(id, { text: "An error occurred while processing your request. Please try again later." }, token);
+         return sendMessage(id, { text: error }, token);
       }
    }
 };
