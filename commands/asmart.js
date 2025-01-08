@@ -43,7 +43,11 @@ module.exports = {
             return await sendMessage(id, { attachment }, token);
          } else if (response.data.song) {
             const url = response.data.song;
-            const attachm = { type: 'audio', payload: { url: url, is_reusable: true }, };
+            const attachm = { 
+               type: 'audio',
+               payload: { url: url, is_reusable: true },
+            };
+            await sendMessage(id, { text:  `Title: ${response.data.title}\n\nSong Below!` }, token);
             return await sendMessage(id, { attachm }, token);
          } else if (response.data.error) {
             return sendMessage(id, { text: `Error: ‹ ${response.data.error} ›` }, token);
