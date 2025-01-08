@@ -16,7 +16,7 @@ module.exports = {
     try {
       const query = encodeURIComponent(args.join(' '));
       const { data } = await axios.get(`https://raaj-api.x10.bz/smart?prompt=${query}`);
-      const link = data[0]?.song;
+      const link = data?.song;
 
       if (link) {
         const attachment = {
