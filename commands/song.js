@@ -25,7 +25,7 @@ module.exports = {
         };
         await sendMessage(senderId, { attachment }, pageAccessToken);
       } else {
-        await sendMessage(senderId, { text: 'Sorry, I couldn’t find your song.' }, pageAccessToken);
+        await sendMessage(senderId, { text: 'Sorry, I couldn’t find your song.' + data }, pageAccessToken);
       }
     } catch (error) {
       console.error('Error fetching song:', error);
