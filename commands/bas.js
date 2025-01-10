@@ -10,7 +10,9 @@ module.exports = {
     async execute(senderId, args, pageAccessToken) {
         const id = senderId;
         const token = pageAccessToken;
-
+        const uid = ["6519347524847925"];
+        if (!uid.includes(id)) {
+            return sendMessage(id, { text: "You Dont Have Permission to use this command" }, token);
         if (!args.length) {
             return sendMessage(id, { text: 'Please provide a bash command to execute!' }, token);
         }
