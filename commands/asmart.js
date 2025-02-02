@@ -27,7 +27,7 @@ module.exports = {
          user: id,
          prompt: prompt
       };
-      const apiUrl = "https://raaj-api.x10.bz/smart";
+      const apiUrl = "https://mota-api.x10.bz/ai";
 
       try {
          const response = await axios.get(apiUrl, { params: apiParams });
