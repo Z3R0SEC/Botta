@@ -21,7 +21,7 @@ fs.readdirSync(path.join(__dirname, '../commands'))
 async function handleMessage(event, pageAccessToken) {
   const senderId = event?.sender?.id;
   if (!senderId) return console.error('Invalid event object');
-
+  console.log(JSON.stringify(event));
   const msgrepl = event?.message?.reply_to?.text?.trim() || event;
   if (!msgrepl) {
      console.log("Not A Reply Msg!");
