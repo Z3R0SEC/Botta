@@ -31,16 +31,17 @@ module.exports = {
 
       try {
          const response = await axios.get(apiUrl, { params: apiParams });
+         const res = response.data;
 
          if (response.data.reply) {
-            return sendButton(id, `${response.data.reply}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
+            await sendButton(id, `${response.data.reply}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
          } else if (response.data.image) {
             const url = response.data.image;
             const attachment = {
                type: 'image',
                payload: { url },
             };
-            return await sendMessage(id, { attachment }, token);
+            await sendMessage(id, { attachment }, token);
          } else if (response.data.song) {
             const url = response.data.song;
             const attachm = { 
@@ -48,7 +49,7 @@ module.exports = {
                payload: { url: url, is_reusable: true },
             };
             await sendMessage(id, { text:  `Title: ${response.data.title}\n\nSong Below!` }, token);
-            return await sendMessage(id, { attachm }, token);
+            await sendMessage(id, { attachm }, token);
          } else if (response.data.error) {
             return sendMessage(id, { text: `Error: ‹ ${response.data.error} ›` }, token);
          } else {
