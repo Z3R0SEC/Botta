@@ -32,7 +32,7 @@ module.exports = {
          user: id, // Extract the first name of the user
          prompt: prompt
       };
-      const apiUrl = "https://mota-api.x10.bz/ai"; // RaaJ AI API endpoint
+      const apiUrl = "https://mota-api.x10.bz/api/ai"; // RaaJ AI API endpoint
 
       try {
          // Make the API call
