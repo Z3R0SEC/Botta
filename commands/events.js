@@ -9,4 +9,5 @@ module.exports = {
 
   async execute(senderId, args, pageAccessToken, event) {
   await sendMessage(senderId, { text: event }, pageAccessToken);
-  };
+  }
+};
