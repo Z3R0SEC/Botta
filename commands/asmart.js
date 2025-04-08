@@ -1,63 +1,84 @@
-const axios = require('axios');                            const { sendButton, sendMessage } = require('../handles/sendMessage');
+const axios = require('axios');
+const { sendButton, sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
-   name: 'ai',                                             description: 'Chat with an AI',
-   usage: 'ai <message>',
-   author: 'Mota - Dev',
+  name: 'ai',
+  description: 'Chat with Kaidora AI',
+  usage: 'ai <message>',
+  author: 'Mota - Dev',
 
-   async execute(senderId, args, pageAccessToken, user) {
-      const prompt = args.join(' '); // Combine args to form the message
-      const id = senderId;
-      const token = pageAccessToken;
+  async execute(senderId, args, pageAccessToken, user) {
+    const prompt = args.join(' ').trim();
+    const id = senderId;
+    const token = pageAccessToken;
 
-      // Random default message list
-      const defaultMessages = [
-         "Yo, Sup?",                                                "Yo, What's the Word?",
-         "Need Something?",
-         "Listening...",
-         "What's New Dude?"
-      ];
-      const tcr = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
+    // Random default message list
+    const defaultMessages = [
+      "Yo, Sup?",
+      "Yo, What's the Word?",
+      "Need Something?",
+      "Listening...",
+      "What's New Dude?"
+    ];
+    const tcr = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
-      if (!prompt) {
-         return sendMessage(id, { text: tcr }, token);
+    if (!prompt) {
+      return sendMessage(id, { text: tcr }, token);
+    }
+
+    const apiParams = {
+      user: id,
+      prompt: prompt
+    };
+    
+    const apiUrl = "https://your-kaidora-api-link.com"; // <-- replace with real Kaidora URL
+
+    try {
+      const response = await axios.get(apiUrl, {
+        params: apiParams,
+        headers: {
+          'user-agent': 'kaidora-bot',           // <-- you can change the name if you want
+          'authorization': 'your-api-key-here'   // <-- replace with your real API key
+        }
+      });
+
+      const res = response.data;
+
+      if (res.reply) {
+        await sendButton(id, res.reply, [
+          { type: "web_url", title: "Whatsapp Dev", url: "https://wa.me/+27847611848" }
+        ], token);
+      } 
+      else if (res.type === "photo") {
+        const attachment = {
+          type: 'image',
+          payload: { url: res.url },
+        };
+        await sendMessage(id, { text: res.text }, token);
+        await sendMessage(id, { attachment }, token);
+      } 
+      else if (res.type === "song") {
+        const attachment = {
+          type: 'audio',
+          payload: { url: res.url, is_reusable: true },
+        };
+        await sendMessage(id, { text: res.text }, token);
+        await sendMessage(id, { attachment }, token);
+      } 
+      else if (res.type === "generate") {
+        const attachment = {
+          type: 'image',
+          payload: { url: res.url },
+        };
+        await sendMessage(id, { text: res.text }, token);
+        await sendMessage(id, { attachment }, token);
       }
-
-      const apiParams = {
-         user: id,
-         prompt: prompt
-      };
-      const apiUrl = "https://mota-api.x10.bz/api/ai";
-
-      try {
-         const response = await axios.get(apiUrl, { params: apiParams });
-         const res = response.data;
-
-         if (response.data.reply) {
-            await sendButton(id, `${response.data.reply}`, [ { type: "web_url", title: "DONATE", url: "https://pay.capitecbank.co.za/payme/ZST5XN" } ], token);
-         } else if (response.data.image) {
-            const url = response.data.image;
-            const attachment = {
-               type: 'image',
-               payload: { url },
-            };
-            await sendMessage(id, { attachment }, token);
-         } else if (response.data.song) {
-            const url = response.data.song;
-            const attachm = { 
-               type: 'audio',
-               payload: { url: url, is_reusable: true },
-            };
-            await sendMessage(id, { text:  `Title: ${response.data.title}\n\nSong Below!` }, token);
-            await sendMessage(id, { attachm }, token);
-         } else if (response.data.error) {
-            return sendMessage(id, { text: `Error: ‹ ${response.data.error} ›` }, token);
-         } else {
-            return sendMessage(id, { text: "RaaJ Api Returned Unexpected Data!" }, token);
-         }
-      } catch (error) {
-         console.error('Error while communicating with AI API:', error);
-         return sendMessage(id, { text: error }, token);
+      else {
+        return sendMessage(id, { text: "Kaidora returned unexpected data format." }, token);
       }
-   }
+    } catch (error) {
+      console.error('Error communicating with Kaidora API:', error);
+      return sendMessage(id, { text: `Error: ${error.message || error}` }, token);
+    }
+  }
 };
