@@ -42,6 +42,7 @@ module.exports = {
       const res = response.data;
 
       if (res.reply && res.button) {
+        console.log(res.button);
         await sendButton(id, res.reply, [
           { type: "web_url", title: res.button.title, url: res.button.url }
         ], token);
