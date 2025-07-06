@@ -1,59 +1,60 @@
 const axios = require('axios');
-const { sendMessage } = require('../handles/sendMessage');
+const { sendButton, sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
-   name: 'raaj',
-   description: 'Chat with RaaJ',
-   usage: '<message>',
-   author: 'Mota - Dev',
+  name: 'ai',
+  description: 'Chat with Standby AI',
+  usage: 'ai <message>',
+  author: 'Mota - Dev',
 
-   async execute(senderId, args, pageAccessToken, user) {
-      const prompt = args.join(' '); // Combine args to form the user message
-      const id = senderId;
-      const token = pageAccessToken;
+  async execute(senderId, args, pageAccessToken, user) {
+    const prompt = args.join(' ').trim();
+    const id = senderId;
+    const token = pageAccessToken;
 
-      // Default fallback messages
-      const defaultMessages = [
-         "Yo, Sup?",
-         "Yo, What's the Word?",
-         "Need Something?",
-         "Listening...",
-         "What's New Dude?"
-      ];
-      const fallbackMessage = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
+    const defaultMessages = [
+      "Yo, Sup?",
+      "Yo, What's the Word?",
+      "Need Something?",
+      "Listening...",
+      "What's New Dude?"
+    ];
+    const fallback = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
-      // If no prompt is provided, send a fallback message
-      if (!prompt) {
-         return sendMessage(id, { text: fallbackMessage }, token);
+    if (!prompt) {
+      return sendMessage(id, { text: fallback }, token);
+    }
+
+    const apiUrl = "supai.onrender.com/api/ai";
+
+    try {
+      const response = await axios.get(apiUrl, {
+        params: {
+          user: id,
+          message: prompt
+        },
+        headers: {
+          'user-agent': 'standby-client/1.0 (device=Standby; type=bot; platform=android)',
+          'authorization': 'Barier sk-standby6TzHc9eP3LmFQn7XxWqTgZyLPa0MvdwUjdGq29eFQKmR9R'
+        }
+      });
+
+      const res = response.data;
+
+      if (res.reply && res.button) {
+        await sendButton(id, res.reply, [
+          { type: "web_url", title: res.button.title, url: res.button.url }
+        ], token);
+      } 
+      else if (res.reply) {
+        await sendMessage(id, { text: res.reply }, token);
+      } 
+      else {
+        await sendMessage(id, { text: "Our system is currently encountering an error. Our team is actively working on a fix —  I should function back soon!" }, token);
       }
-
-      // Prepare API parameters
-      const apiParams = {
-         user: id, // Extract the first name of the user
-         prompt: prompt
-      };
-      const apiUrl = "https://mota-api.x10.bz/api/ai"; // RaaJ AI API endpoint
-
-      try {
-         // Make the API call
-         const response = await axios.get(apiUrl, { params: apiParams });
-
-         // Handle the API response
-         if (response.data.reply) {
-            return sendMessage(id, { text: response.data.reply }, token);
-         } else if (response.data.error) {
-            return sendMessage(id, { text: `Error: ${response.data.error}` }, token);
-         } else {
-            return sendMessage(id, { text: "Unexpected response from RaaJ AI." }, token);
-         }
-      } catch (error) {
-         // Log the error and notify the user
-         console.error('Error while communicating with RaaJ API:', error.message || error);
-         return sendMessage(
-            id,
-            { text: "An error occurred while connecting to RaaJ. Please try again later." },
-            token
-         );
-      }
-   }
+    } catch (error) {
+      console.error('Standby AI error:', error.message || error);
+      await sendMessage(id, { text: `Our system is currently encountering an error. Our team is actively working on a fix — Chat Soon soon!\n\n» System Reason: ${error.message || error}\n[xaiMothaDevelopersTraceBack!]` }, token);
+    }
+  }
 };
