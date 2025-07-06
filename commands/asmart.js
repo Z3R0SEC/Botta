@@ -3,7 +3,7 @@ const { sendButton, sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
   name: 'ai',
-  description: 'Chat with Kaidora AI',
+  description: 'Chat with Standby AI',
   usage: 'ai <message>',
   author: 'Mota - Dev',
 
@@ -12,7 +12,6 @@ module.exports = {
     const id = senderId;
     const token = pageAccessToken;
 
-    // Random default message list
     const defaultMessages = [
       "Yo, Sup?",
       "Yo, What's the Word?",
@@ -20,65 +19,42 @@ module.exports = {
       "Listening...",
       "What's New Dude?"
     ];
-    const tcr = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
+    const fallback = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
     if (!prompt) {
-      return sendMessage(id, { text: tcr }, token);
+      return sendMessage(id, { text: fallback }, token);
     }
 
-    const apiParams = {
-      user: id,
-      prompt: prompt
-    };
-    
-    const apiUrl = "https://your-kaidora-api-link.com"; // <-- replace with real Kaidora URL
+    const apiUrl = "https://your-kaidora-api-link.com"; // <-- Replace with your real API URL
 
     try {
       const response = await axios.get(apiUrl, {
-        params: apiParams,
+        params: {
+          user: id,
+          prompt: prompt
+        },
         headers: {
-          'user-agent': 'kaidora-bot',           // <-- you can change the name if you want
-          'authorization': 'your-api-key-here'   // <-- replace with your real API key
+          'user-agent': 'standby-bot',
+          'authorization': 'your-api-key-here' // <-- Replace with your real key
         }
       });
 
       const res = response.data;
 
-      if (res.reply) {
+      if (res.reply && res.button) {
         await sendButton(id, res.reply, [
-          { type: "web_url", title: "Whatsapp Dev", url: "https://wa.me/+27847611848" }
+          { type: "web_url", title: res.button.title, url: res.button.url }
         ], token);
       } 
-      else if (res.type === "photo") {
-        const attachment = {
-          type: 'image',
-          payload: { url: res.url },
-        };
-        await sendMessage(id, { text: res.text }, token);
-        await sendMessage(id, { attachment }, token);
+      else if (res.reply) {
+        await sendMessage(id, { text: res.reply }, token);
       } 
-      else if (res.type === "song") {
-        const attachment = {
-          type: 'audio',
-          payload: { url: res.url, is_reusable: true },
-        };
-        await sendMessage(id, { text: res.text }, token);
-        await sendMessage(id, { attachment }, token);
-      } 
-      else if (res.type === "generate") {
-        const attachment = {
-          type: 'image',
-          payload: { url: res.url },
-        };
-        await sendMessage(id, { text: res.text }, token);
-        await sendMessage(id, { attachment }, token);
-      }
       else {
-        return sendMessage(id, { text: "Kaidora returned unexpected data format." }, token);
+        await sendMessage(id, { text: "Our system is currently encountering an error. Our team is actively working on a fix —  I should function back soon!" }, token);
       }
     } catch (error) {
-      console.error('Error communicating with Kaidora API:', error);
-      return sendMessage(id, { text: `Error: ${error.message || error}` }, token);
+      console.error('Standby AI error:', error.message || error);
+      await sendMessage(id, { text: `Our system is currently encountering an error. Our team is actively working on a fix — Chat Soon soon!\n\n» System Reason: ${error.message || error}\n[xaiMothaDevelopersTraceBack!]` }, token);
     }
   }
 };
