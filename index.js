@@ -27,7 +27,7 @@ function calculateUptime(startTime, currentTime) {
   return { days, hours, minutes };
 }
 
-const VERIFY_TOKEN = 'pagebot';
+const VERIFY_TOKEN = 'standby';
 const PAGE_ACCESS_TOKEN = fs.readFileSync('token.txt', 'utf8').trim();
 const COMMANDS_PATH = path.join(__dirname, 'commands');
 
