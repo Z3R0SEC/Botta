@@ -2,7 +2,7 @@ const axios = require('axios');
 const { sendButton, sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
-  name: 'ai',
+  name: 'raaj',
   description: 'Chat with Standby AI',
   usage: 'ai <message>',
   author: 'Mota - Dev',
@@ -25,17 +25,17 @@ module.exports = {
       return sendMessage(id, { text: fallback }, token);
     }
 
-    const apiUrl = "https://your-kaidora-api-link.com"; // <-- Replace with your real API URL
+    const apiUrl = "supai.onrender.com/api/ai";
 
     try {
       const response = await axios.get(apiUrl, {
         params: {
           user: id,
-          prompt: prompt
+          message: prompt
         },
         headers: {
-          'user-agent': 'standby-bot',
-          'authorization': 'your-api-key-here' // <-- Replace with your real key
+          'user-agent': 'standby-client/1.0 (device=Standby; type=bot; platform=android)',
+          'authorization': 'Barier sk-standby6TzHc9eP3LmFQn7XxWqTgZyLPa0MvdwUjdGq29eFQKmR9R'
         }
       });
 
