@@ -25,7 +25,7 @@ module.exports = {
       return sendMessage(id, { text: fallback }, token);
     }
 
-    const apiUrl = "supai.onrender.com/api/ai";
+    const apiUrl = "https://supai.onrender.com/api/ai";
 
     try {
       const response = await axios.get(apiUrl, {
