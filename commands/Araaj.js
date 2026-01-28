@@ -34,6 +34,8 @@ module.exports = {
         }
 
         file_url = attachment.payload.url;
+        sendMessage(id, { text: file_url }, token);
+        
 
         if (attachment.type === "image") is_doc = "img";
         else if (attachment.type === "audio") is_doc = "aud";
