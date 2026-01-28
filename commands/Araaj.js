@@ -7,12 +7,11 @@ module.exports = {
   usage: 'ai <message>',
   author: 'Mota - Dev',
 
-  async execute(senderId, args, pageAccessToken, user) {
+  async execute(senderId, args, pageAccessToken, event) {
     const id = senderId;
     const token = pageAccessToken;
     const prompt = args.join(' ').trim();
-    const data = `${JSON.stringify(user)}`;
-    sendMessage(id, { text: data }, token);
+
     const defaultMessages = [
       "Yo, Sup?",
       "Yo, What's the Word?",
@@ -27,8 +26,8 @@ module.exports = {
 
     try {
       // 🔍 Detect attachment from Messenger event
-      const attachment = user?.message?.attachments?.[0] || null;
-      sendMessage(id, { text: attachment }, token);
+      const attachment = event?.message?.attachments?.[0] || null;
+
       if (attachment) {
         if (!attachment.payload || !attachment.payload.url) {
           return sendMessage(id, { text: "⚠️ Attachment received but URL missing." }, token);
@@ -64,7 +63,7 @@ module.exports = {
 
       if (!res || res.status !== "success") {
         await logError("AI API Error", res);
-        return sendMessage(id, { text: "⚠️ AI failed. Error logged." }, token);
+        return sendMessage(id, { text: "⚠️ AI error. Logged to /logs." }, token);
       }
 
       return sendMessage(id, { text: String(res.data.response) }, token);
@@ -78,10 +77,13 @@ module.exports = {
     async function logError(message, context) {
       try {
         await axios.post("https://mota-dev.x10.mx/errors", {
-          error: { message, context }
+          error: {
+            message,
+            context
+          }
         });
       } catch (e) {
-        console.error("Logging failed:", e.message);
+        console.error("Failed to log error to API:", e.message);
       }
     }
   }
