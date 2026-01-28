@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { sendButton, sendMessage } = require('../handles/sendMessage');
+const { sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
   name: 'ai',
@@ -25,12 +25,9 @@ module.exports = {
     let file_url = null;
 
     try {
-      // STEP 1: Detect attachment
       if (attachment) {
         if (!attachment.payload || !attachment.payload.url) {
-          return sendMessage(id, { 
-            text: "⚠️ Attachment received but URL is missing.\nDebug:\n" + JSON.stringify(attachment, null, 2) 
-          }, token);
+          return sendMessage(id, { text: "⚠️ Attachment received but URL missing." }, token);
         }
 
         file_url = attachment.payload.url;
@@ -39,9 +36,7 @@ module.exports = {
         else if (attachment.type === "audio") is_doc = "aud";
         else if (attachment.type === "video") is_doc = "vid";
         else {
-          return sendMessage(id, { 
-            text: "⚠️ Unsupported attachment type: " + attachment.type 
-          }, token);
+          return sendMessage(id, { text: "⚠️ Unsupported attachment type: " + attachment.type }, token);
         }
       }
 
@@ -49,60 +44,45 @@ module.exports = {
         return sendMessage(id, { text: fallback }, token);
       }
 
-      const apiUrl = "https://mota-dev.x10.mx/api/ai";
+      const apiUrl = "https://mota-dev.x10.mx/api/ai"; // YOUR NEW API
 
-      // STEP 2: Call your AI API
       const response = await axios.post(apiUrl, {
         user: id,
-        is_doc: is_doc,
+        is_doc,
         prompt: prompt || null,
-        file_url: file_url
+        file_url
       }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'authorization': 'Bearer sk-standby6TzHc9eP3LmFQn7XxWqTgZyLPa0MvdwUjdGq29eFQKmR9R'
-        },
+        headers: { 'Content-Type': 'application/json' },
         timeout: 60000
       });
 
       const res = response.data;
 
-      // STEP 3: Validate response
-      if (!res) {
-        return sendMessage(id, { text: "❌ API returned empty response." }, token);
-      }
-
-      if (res.status !== "success") {
-        return sendMessage(id, { 
-          text: "❌ API Error:\n" + JSON.stringify(res, null, 2) 
+      if (!res || res.status !== "success") {
+        return sendMessage(id, {
+          text: "❌ AI API Error:\n" + JSON.stringify(res, null, 2)
         }, token);
       }
 
-      if (!res.data || !res.data.response) {
-        return sendMessage(id, { 
-          text: "❌ Missing AI reply field:\n" + JSON.stringify(res, null, 2) 
-        }, token);
-      }
+      return sendMessage(id, { text: String(res.data.response) }, token);
 
-      // STEP 4: Send AI reply
-      return sendMessage(id, { text: res.data.response }, token);
+    } catch (err) {
+      let msg = "🔥 BOT ERROR\n\n";
 
-    } catch (error) {
-      let errorMsg = "🔥 Standby AI CRASHED\n\n";
-
-      if (error.response) {
-        errorMsg += "API STATUS: " + error.response.status + "\n";
-        errorMsg += "API DATA:\n" + JSON.stringify(error.response.data, null, 2);
-      } else if (error.request) {
-        errorMsg += "NO RESPONSE FROM SERVER\n";
-        errorMsg += "Request:\n" + JSON.stringify(error.request, null, 2);
+      if (err.code === "ENOTFOUND") {
+        msg += "❌ DNS ERROR: API domain not reachable.\n" + err.hostname;
+      } else if (err.response) {
+        msg += "❌ API RESPONSE ERROR\nStatus: " + err.response.status +
+               "\nData:\n" + JSON.stringify(err.response.data, null, 2);
+      } else if (err.request) {
+        msg += "❌ NO RESPONSE FROM SERVER\n" + err.message;
       } else {
-        errorMsg += "ERROR MESSAGE:\n" + error.message;
+        msg += "❌ INTERNAL ERROR\n" + err.message;
       }
 
-      console.error("AI BOT FULL ERROR:", error);
+      console.error("FULL BOT ERROR:", err);
 
-      return sendMessage(id, { text: errorMsg }, token);
+      return sendMessage(id, { text: msg }, token);
     }
   }
 };
