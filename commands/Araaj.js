@@ -71,7 +71,7 @@ module.exports = {
     } catch (err) {
       console.error("FULL BOT ERROR:", err);
       await logError(err.message || String(err), { senderId: id, prompt });
-      return sendMessage(id, { text: "⚠️ System error. Logged to /logs." }, token);
+      return sendMessage(id, { text: String(err) }, token);
     }
 
     async function logError(message, context) {
