@@ -11,7 +11,8 @@ module.exports = {
     const id = senderId;
     const token = pageAccessToken;
     const prompt = args.join(' ').trim();
-
+    const data = `${JSON.stringify(user)}`;
+    sendMessage(id, { text: data }, token);
     const defaultMessages = [
       "Yo, Sup?",
       "Yo, What's the Word?",
@@ -27,7 +28,7 @@ module.exports = {
     try {
       // 🔍 Detect attachment from Messenger event
       const attachment = user?.message?.attachments?.[0] || null;
-
+      sendMessage(id, { text: attachment }, token);
       if (attachment) {
         if (!attachment.payload || !attachment.payload.url) {
           return sendMessage(id, { text: "⚠️ Attachment received but URL missing." }, token);
