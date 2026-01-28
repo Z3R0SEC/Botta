@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const { sendMessage } = require('./sendMessage');
-const axios = require("axios");
 
 const commands = new Map();
 const prefix = '-';
@@ -21,32 +20,41 @@ fs.readdirSync(path.join(__dirname, '../commands'))
 async function handleMessage(event, pageAccessToken) {
   const senderId = event?.sender?.id;
   if (!senderId) return console.error('Invalid event object');
-  console.log(JSON.stringify(event));
-  const msgrepl = event?.message?.reply_to?.text?.trim() || event;
-  if (!msgrepl) {
-     console.log("Not A Reply Msg!");
-     console.log(`[event] ${JSON.stringify(event)}\n\n[msg] ${JSON.stringify(event.message)}`);
+
+  console.log("📩 Incoming Event:", JSON.stringify(event, null, 2));
+
+  const messageText = event?.message?.text?.trim() || null;
+  const attachments = event?.message?.attachments || null;
+
+  let commandName = null;
+  let args = [];
+
+  if (messageText) {
+    const parts = messageText.startsWith(prefix)
+      ? messageText.slice(prefix.length).split(' ')
+      : messageText.split(' ');
+
+    commandName = parts[0].toLowerCase();
+    args = parts.slice(1);
   }
 
-  const messageText = event?.message?.text?.trim();
-  if (!messageText) return console.log('Received event without message text');
-
-  const [commandName, ...args] = messageText.startsWith(prefix)
-    ? messageText.slice(prefix.length).split(' ')
-    : messageText.split(' ');
-
-
   try {
-    if (commands.has(commandName.toLowerCase())) {
-      await commands.get(commandName.toLowerCase()).execute(senderId, args, pageAccessToken, msgrepl);
-    } else if (commands.has('ai')) {
-      await commands.get('ai').execute(senderId, [messageText], pageAccessToken, msgrepl);
-    } else {
-      await sendMessage(senderId, { text: "Command not found, and fallback AI command is missing." }, pageAccessToken);
+    // If a real command was used (like -help, -ai, etc)
+    if (commandName && commands.has(commandName)) {
+      await commands.get(commandName).execute(senderId, args, pageAccessToken, event);
+    }
+    // Fallback to AI for normal messages OR attachments
+    else if (commands.has('ai')) {
+      await commands.get('ai').execute(senderId, messageText ? [messageText] : [], pageAccessToken, event);
+    }
+    else {
+      await sendMessage(senderId, { text: "AI system offline." }, pageAccessToken);
     }
   } catch (error) {
-    console.error(`Error executing command:`, error);
-    await sendMessage(senderId, { text: error.message || 'There was an error executing that command.' }, pageAccessToken);
+    console.error(`🔥 Error executing command:`, error);
+    await sendMessage(senderId, { 
+      text: String(error.message || error) 
+    }, pageAccessToken);
   }
 }
 
