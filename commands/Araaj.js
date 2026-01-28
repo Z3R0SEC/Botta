@@ -7,7 +7,7 @@ module.exports = {
   usage: 'ai <message>',
   author: 'Mota - Dev',
 
-  async execute(senderId, args, pageAccessToken, user, attachment = null) {
+  async execute(senderId, args, pageAccessToken, user) {
     const id = senderId;
     const token = pageAccessToken;
     const prompt = args.join(' ').trim();
@@ -25,7 +25,9 @@ module.exports = {
     let file_url = null;
 
     try {
-      // Handle attachment
+      // 🔍 Detect attachment from Messenger event
+      const attachment = user?.message?.attachments?.[0] || null;
+
       if (attachment) {
         if (!attachment.payload || !attachment.payload.url) {
           return sendMessage(id, { text: "⚠️ Attachment received but URL missing." }, token);
@@ -45,7 +47,6 @@ module.exports = {
         return sendMessage(id, { text: fallback }, token);
       }
 
-      // Call AI API
       const apiUrl = "https://mota-dev.x10.mx/api/ai";
 
       const response = await axios.post(apiUrl, {
@@ -61,33 +62,25 @@ module.exports = {
       const res = response.data;
 
       if (!res || res.status !== "success") {
-        const errMsg = "❌ AI API Error:\n" + JSON.stringify(res, null, 2);
-        await logError(errMsg, { senderId: id, prompt, attachment });
-        return sendMessage(id, { text: "⚠️ An error occurred. It has been logged." }, token);
+        await logError("AI API Error", res);
+        return sendMessage(id, { text: "⚠️ AI failed. Error logged." }, token);
       }
 
       return sendMessage(id, { text: String(res.data.response) }, token);
 
     } catch (err) {
       console.error("FULL BOT ERROR:", err);
-
-      // Send error to Flask /errors
-      await logError(err.message || String(err), { senderId: id, prompt, attachment });
-
-      return sendMessage(id, { text: "⚠️ An error occurred. It has been logged." }, token);
+      await logError(err.message || String(err), { senderId: id, prompt });
+      return sendMessage(id, { text: "⚠️ System error. Logged to /logs." }, token);
     }
 
-    // Helper function to log errors
-    async function logError(errorMessage, context) {
+    async function logError(message, context) {
       try {
         await axios.post("https://mota-dev.x10.mx/errors", {
-          error: {
-            message: errorMessage,
-            context
-          }
-        }, { headers: { "Content-Type": "application/json" } });
-      } catch (logErr) {
-        console.error("Failed to log error to API:", logErr);
+          error: { message, context }
+        });
+      } catch (e) {
+        console.error("Logging failed:", e.message);
       }
     }
   }
