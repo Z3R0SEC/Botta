@@ -13,11 +13,11 @@ module.exports = {
     const prompt = args.join(' ').trim();
 
     const defaultMessages = [
-      "Yo, Sup?",
-      "Yo, What's the Word?",
-      "Need Something?",
-      "Listening...",
-      "What's New Dude?"
+      "Hi, 😊",
+      "How can i Help you today ?",
+      "Anything Else ?",
+      "Do you need something ? 🤭",
+      "Yoh Whats new ?"
     ];
     const fallback = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
@@ -29,7 +29,7 @@ module.exports = {
 
       if (attachment) {
         if (!attachment.payload || !attachment.payload.url) {
-          return sendMessage(id, { text: "⚠️ Attachment received but URL missing." }, token);
+          return sendMessage(id, { text: "[ ERROR ] > IMAGE OR VOICE NOTE ISSUE!\nI do not seem to understand the attachment you have provided.\nplease use a different attachment" }, token);
         }
 
         file_url = attachment.payload.url;
@@ -40,7 +40,7 @@ module.exports = {
         else if (attachment.type === "audio") is_doc = "aud";
         else if (attachment.type === "video") is_doc = "vid";
         else {
-          return sendMessage(id, { text: "⚠️ Unsupported attachment type: " + attachment.type }, token);
+          return sendMessage(id, { text: "Unsupported attachment type: " + attachment.type }, token);
         }
       }
 
@@ -48,7 +48,7 @@ module.exports = {
         return sendMessage(id, { text: fallback }, token);
       }
 
-      const apiUrl = "https://mota-dev.x10.mx/api/ai";
+      const apiUrl = "https://standbyclothing.xyz/api/ai";
 
       const response = await axios.post(apiUrl, {
         user: id,
@@ -64,7 +64,7 @@ module.exports = {
 
       if (!res || res.status !== "success") {
         await logError("AI API Error", res);
-        return sendMessage(id, { text: "⚠️ AI error. Logged to /logs." }, token);
+        return sendMessage(id, { text: "[ ERROR ] at /motadev/system/hackr/usr/StandbyClothing/ai at port 81 error -> ", res.error.details }, token);
       }
 
       return sendMessage(id, { text: String(res.data.response) }, token);
