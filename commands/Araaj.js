@@ -102,7 +102,7 @@ module.exports = {
 
       return sendMessage(
         id,
-        { text: "Something went wrong. Please try again later." },
+        { text: err.message },
         token
       );
     }
