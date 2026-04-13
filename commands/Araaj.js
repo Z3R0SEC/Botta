@@ -85,12 +85,14 @@ module.exports = {
           token
         );
       }
-
+/*
       return sendMessage(
         id,
         { text: String(res?.data?.response || "No response from AI.") },
         token
       );
+      */
+      return sendButton(id, res?.data?.response, [{ type: "web_url", url: "https://standbyclothing.xyz", title: "Shop Now" }, { type: "web_url", url: "https://standbyclothing.xyz/orders", title: "Track Order" } ], token);
 
     } catch (err) {
       console.error("FULL BOT ERROR:", err);
