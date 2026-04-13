@@ -13,12 +13,13 @@ module.exports = {
     const prompt = args.join(' ').trim();
 
     const defaultMessages = [
-      "Hi, 😊",
-      "How can i Help you today ?",
-      "Anything Else ?",
-      "Do you need something ? 🤭",
-      "Yoh Whats new ?"
+      "Hi 😊",
+      "How can I help you today?",
+      "Anything else?",
+      "Do you need something? 🤭",
+      "Yoh, what's new?"
     ];
+
     const fallback = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
     let is_doc = "text";
@@ -28,19 +29,28 @@ module.exports = {
       const attachment = event?.message?.attachments?.[0] || null;
 
       if (attachment) {
-        if (!attachment.payload || !attachment.payload.url) {
-          return sendMessage(id, { text: "[ ERROR ] > IMAGE OR VOICE NOTE ISSUE!\nI do not seem to understand the attachment you have provided.\nplease use a different attachment" }, token);
+        if (!attachment.payload?.url) {
+          return sendMessage(id, {
+            text: "[ ERROR ] Invalid attachment. Please try a different file."
+          }, token);
         }
 
         file_url = attachment.payload.url;
-        sendMessage(id, { text: file_url }, token);
-        
 
-        if (attachment.type === "image") is_doc = "img";
-        else if (attachment.type === "audio") is_doc = "aud";
-        else if (attachment.type === "video") is_doc = "vid";
-        else {
-          return sendMessage(id, { text: "Unsupported attachment type: " + attachment.type }, token);
+        switch (attachment.type) {
+          case "image":
+            is_doc = "img";
+            break;
+          case "audio":
+            is_doc = "aud";
+            break;
+          case "video":
+            is_doc = "vid";
+            break;
+          default:
+            return sendMessage(id, {
+              text: `Unsupported attachment type: ${attachment.type}`
+            }, token);
         }
       }
 
@@ -50,29 +60,51 @@ module.exports = {
 
       const apiUrl = "https://standbyclothing.xyz/api/ai";
 
-      const response = await axios.post(apiUrl, {
-        user: id,
-        is_doc,
-        prompt: prompt || null,
-        file_url
-      }, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 60000
-      });
+      const response = await axios.post(
+        apiUrl,
+        {
+          user: id,
+          is_doc,
+          prompt,
+          file_url
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 60000
+        }
+      );
 
       const res = response.data;
 
       if (!res || res.status !== "success") {
         await logError("AI API Error", res);
-        return sendMessage(id, { text: "[ ERROR ] at /motadev/system/hackr/usr/StandbyClothing/ai at port 81 error -> ", res.error.details }, token);
+
+        return sendMessage(
+          id,
+          { text: `[ ERROR ] -> ${res?.error?.details || "Unknown error"}` },
+          token
+        );
       }
 
-      return sendMessage(id, { text: String(res.data.response) }, token);
+      return sendMessage(
+        id,
+        { text: String(res?.data?.response || "No response from AI.") },
+        token
+      );
 
     } catch (err) {
       console.error("FULL BOT ERROR:", err);
-      await logError(err.message || String(err), { senderId: id, prompt });
-      return sendMessage(id, { text: String(err) }, token);
+
+      await logError(err.message || "Unknown error", {
+        senderId: id,
+        prompt
+      });
+
+      return sendMessage(
+        id,
+        { text: "Something went wrong. Please try again later." },
+        token
+      );
     }
 
     async function logError(message, context) {
@@ -84,7 +116,7 @@ module.exports = {
           }
         });
       } catch (e) {
-        console.error("Failed to log error to API:", e.message);
+        console.error("Failed to log error:", e.message);
       }
     }
   }
