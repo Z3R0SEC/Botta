@@ -5,7 +5,7 @@ module.exports = {
   name: 'ai',
   description: 'Chat with Me',
   usage: 'ai <message>',
-  author: 'Mota - Dev',
+  author: 'Mota Dev',
 
   async execute(senderId, args, pageAccessToken, event) {
     const id = senderId;
@@ -61,7 +61,7 @@ module.exports = {
       const apiUrl = "https://standbyclothing.xyz/api/ai";
 
       // 🔥 DEBUG LOG BEFORE REQUEST
-      console.log("➡️ Sending request to API:", {
+      console.log("[ LOG ] Sending request to API:", {
         user: id,
         is_doc,
         prompt,
