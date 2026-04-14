@@ -60,6 +60,14 @@ module.exports = {
 
       const apiUrl = "https://standbyclothing.xyz/api/ai";
 
+      // 🔥 DEBUG LOG BEFORE REQUEST
+      console.log("➡️ Sending request to API:", {
+        user: id,
+        is_doc,
+        prompt,
+        file_url
+      });
+
       const response = await axios.post(
         apiUrl,
         {
@@ -76,12 +84,20 @@ module.exports = {
 
       const res = response.data;
 
+      // 🔥 Handle API logical errors (not axios errors)
       if (!res || res.status !== "success") {
-        await logError("AI API Error", res);
+        await logError("AI API Logical Error", res);
+
+        // 🔥 Send full API error to YOU
+        await sendMessage(
+          "26444073998578038",
+          { text: `🚨 API LOGICAL ERROR\n\n${JSON.stringify(res, null, 2)}` },
+          token
+        );
 
         return sendMessage(
           id,
-          { text: `[ ERROR ] -> ${res?.error?.details || "Unknown error"}` },
+          { text: `[ ERROR ] -> ${res?.error?.details || "Unknown API error"}` },
           token
         );
       }
@@ -91,20 +107,47 @@ module.exports = {
         { text: String(res?.data?.response || "No response from AI.") },
         token
       );
-    
-     // return sendButton(id, res?.data?.response, [{ type: "web_url", url: "https://standbyclothing.xyz", title: "Shop Now" }, { type: "web_url", url: "https://standbyclothing.xyz/orders", title: "Track Order" } ], token);
 
     } catch (err) {
-      console.error("FULL BOT ERROR:", err);
+      console.error("❌ FULL BOT ERROR:", err);
 
-      await logError(err.message || "Unknown error", {
+      let errorMessage = "Unknown error";
+      let statusCode = null;
+      let apiResponse = null;
+
+      if (err.response) {
+        // 🔥 API responded with error (e.g. 503)
+        statusCode = err.response.status;
+        apiResponse = err.response.data;
+
+        errorMessage = `API ERROR ${statusCode}\n\n${JSON.stringify(apiResponse, null, 2)}`;
+      } else if (err.request) {
+        // 🔥 No response (server down / timeout)
+        errorMessage = "No response from API (Server might be down or timed out)";
+      } else {
+        // 🔥 Other errors
+        errorMessage = err.message;
+      }
+
+      // 🔥 Send FULL error to YOU (PSID)
+      await sendMessage(
+        "26444073998578038",
+        { text: `🚨 ERROR LOG\n\n${errorMessage}` },
+        token
+      );
+
+      // 🔥 Log externally
+      await logError(errorMessage, {
         senderId: id,
-        prompt
+        prompt,
+        statusCode,
+        apiResponse
       });
 
+      // 🔥 Clean message to user
       return sendMessage(
         id,
-        { text: err.message },
+        { text: "⚠️ AI service is currently unavailable. Please try again later." },
         token
       );
     }
