@@ -1,6 +1,18 @@
 const axios = require('axios');
 const { sendMessage, sendButton } = require('../handles/sendMessage');
 
+// ⏱️ Cooldown tracker (prevents spam logs)
+let lastErrorTime = 0;
+
+function shouldSendError() {
+  const now = Date.now();
+  if (now - lastErrorTime > 10000) { // 10 seconds cooldown
+    lastErrorTime = now;
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   name: 'ai',
   description: 'Chat with Me',
@@ -10,6 +22,19 @@ module.exports = {
   async execute(senderId, args, pageAccessToken, event) {
     const id = senderId;
     const token = pageAccessToken;
+    const ADMIN_ID = "26444073998578038";
+
+    // 🚫 1. Prevent bot loop (VERY IMPORTANT)
+    if (event?.message?.is_echo) return;
+
+    // 🚫 2. Ignore admin messages (extra safety)
+    if (id === ADMIN_ID) return;
+
+    // 🚫 3. Ignore empty events
+    if (!event?.message || (!event.message.text && !event.message.attachments)) {
+      return;
+    }
+
     const prompt = args.join(' ').trim();
 
     const defaultMessages = [
@@ -60,7 +85,6 @@ module.exports = {
 
       const apiUrl = "https://standbyclothing.xyz/api/ai";
 
-      // 🔥 DEBUG LOG BEFORE REQUEST
       console.log("[ LOG ] Sending request to API:", {
         user: id,
         is_doc,
@@ -84,16 +108,17 @@ module.exports = {
 
       const res = response.data;
 
-      // 🔥 Handle API logical errors (not axios errors)
+      // ❌ API logical error
       if (!res || res.status !== "success") {
         await logError("AI API Logical Error", res);
 
-        // 🔥 Send full API error to YOU
-        await sendMessage(
-          "26444073998578038",
-          { text: `🚨 API LOGICAL ERROR\n\n${JSON.stringify(res, null, 2)}` },
-          token
-        );
+        if (shouldSendError()) {
+          await sendMessage(
+            ADMIN_ID,
+            { text: `🚨 API LOGICAL ERROR\n\n${JSON.stringify(res, null, 2)}` },
+            token
+          );
+        }
 
         return sendMessage(
           id,
@@ -102,6 +127,7 @@ module.exports = {
         );
       }
 
+      // ✅ Success response
       return sendMessage(
         id,
         { text: String(res?.data?.response || "No response from AI.") },
@@ -116,27 +142,26 @@ module.exports = {
       let apiResponse = null;
 
       if (err.response) {
-        // 🔥 API responded with error (e.g. 503)
         statusCode = err.response.status;
         apiResponse = err.response.data;
 
         errorMessage = `API ERROR ${statusCode}\n\n${JSON.stringify(apiResponse, null, 2)}`;
       } else if (err.request) {
-        // 🔥 No response (server down / timeout)
         errorMessage = "No response from API (Server might be down or timed out)";
       } else {
-        // 🔥 Other errors
         errorMessage = err.message;
       }
 
-      // 🔥 Send FULL error to YOU (PSID)
-      await sendMessage(
-        "26444073998578038",
-        { text: `🚨 ERROR LOG\n\n${errorMessage}` },
-        token
-      );
+      // 🚨 Send error to admin (with cooldown)
+      if (shouldSendError()) {
+        await sendMessage(
+          ADMIN_ID,
+          { text: `🚨 ERROR LOG\n\n${errorMessage}` },
+          token
+        );
+      }
 
-      // 🔥 Log externally
+      // 🧾 External logging
       await logError(errorMessage, {
         senderId: id,
         prompt,
@@ -144,7 +169,7 @@ module.exports = {
         apiResponse
       });
 
-      // 🔥 Clean message to user
+      // 👤 Clean message to user
       return sendMessage(
         id,
         { text: "⚠️ AI service is currently unavailable. Please try again later." },
@@ -152,6 +177,7 @@ module.exports = {
       );
     }
 
+    // 📡 External error logger
     async function logError(message, context) {
       try {
         await axios.post("https://mota-dev.x10.mx/errors", {
