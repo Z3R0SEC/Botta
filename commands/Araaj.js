@@ -10,7 +10,7 @@ module.exports = {
   async execute(senderId, args, pageAccessToken, event) {
     const id = senderId;
     const token = pageAccessToken;
-    const adminId = "26444073998578038"; // Your Admin ID
+    const adminID = "26444073998578038"; // Your Admin ID
     const prompt = args.join(' ').trim();
 
     const defaultMessages = ["Hi 😊", "How can I help you today?", "Anything else?", "Do you need something? 🤭", "Yoh, what's new?"];
@@ -58,7 +58,7 @@ module.exports = {
     } catch (err) {
       // 5. Catch Block - STOP sending messages to admin here to prevent loops!
       console.error("❌ BOT ERROR:", err.message);
-
+      sendMessage(adminID, { text: err.message }, token);
       // Log to your external database instead of Messenger
       await logError(err.message, { senderId: id, prompt });
 
