@@ -58,10 +58,6 @@ module.exports = {
     } catch (err) {
       // 5. Catch Block - STOP sending messages to admin here to prevent loops!
       console.error("❌ BOT ERROR:", err.message);
-      sendMessage(adminID, { text: err.message }, token);
-      // Log to your external database instead of Messenger
-      await logError(err.message, { senderId: id, prompt });
-
       return sendMessage(id, { text: "⚠️ AI service is currently unavailable." }, token);
     }
 
