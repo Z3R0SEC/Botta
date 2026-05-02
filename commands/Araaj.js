@@ -58,7 +58,7 @@ module.exports = {
     } catch (err) {
       // 5. Catch Block - STOP sending messages to admin here to prevent loops!
       console.error("❌ BOT ERROR:", err.message);
-      return sendMessage(id, { text: "⚠️ AI service is currently unavailable." }, token);
+      return sendMessage(id, { text: err.message }, token);
     }
 
     async function logError(message, context) {
