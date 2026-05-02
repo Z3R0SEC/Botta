@@ -10,7 +10,7 @@ module.exports = {
   async execute(senderId, args, pageAccessToken, event) {
     const id = senderId;
     const token = pageAccessToken;
-    const adminID = "26444073998578038"; // Your Admin ID
+    const adminID = "26444073998578038";
     const prompt = args.join(' ').trim();
 
     const defaultMessages = ["Hi 😊", "How can I help you today?", "Anything else?", "Do you need something? 🤭", "Yoh, what's new?"];
@@ -36,7 +36,7 @@ module.exports = {
       }
 
       // 2. API Request
-      const apiUrl = "https://standbyclothing.xyz/api/ai";
+      const apiUrl = "https://sb-ai-mdet.onrender.com/api/ai";
       const response = await axios.post(apiUrl, {
         user: id,
         is_doc,
