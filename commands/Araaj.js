@@ -2,7 +2,7 @@ const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
 
 module.exports = {
-  name: 'rasj',
+  name: 'ai',
   description: 'Chat with Mota AI',
   usage: 'raaj <message>',
   author: 'Mota - Dev',
