@@ -1,42 +1,116 @@
-const axios=require("axios");
-const {sendMessage}=require("../handles/sendMessage");
+const axios = require('axios');
+const { sendMessage } = require('../handles/sendMessage');
 
-module.exports={name:"ai",description:"Chat with Me",usage:"ai <message>",author:"Mota Dev",
+module.exports = {
+  name: 'rasj',
+  description: 'Chat with Mota AI',
+  usage: 'raaj <message>',
+  author: 'Mota - Dev',
 
-async execute(senderId,args,pageAccessToken,event){
-const id=senderId;
-const token=pageAccessToken;
-const prompt=args.join(" ").trim();
-const fallback=["Hi 😊","How can I help you today?","Anything else?","Do you need something? 🤭","Yoh, what's new?"][Math.floor(Math.random()*5)];
+  async execute(senderId, args, pageAccessToken, user, attachment = null) {
 
-try{
-let is_doc="text",file_url=null;
-const attachment=event?.message?.attachments?.[0];
+    const prompt = args.join(' ').trim();
 
-if(attachment){
-if(!attachment.payload?.url)return sendMessage(id,{text:"Attachment Error: Missing URL"},token);
-file_url=attachment.payload.url;
-const typeMap={image:"img",audio:"aud",video:"vid",file:"doc"};
-is_doc=typeMap[attachment.type]||"text";
-}
+    const id = senderId;
+    const token = pageAccessToken;
 
-if(!prompt&&!file_url)return sendMessage(id,{text:fallback},token);
+    const defaultMessages = [
+      "Yo, Sup?",
+      "Yo, What's the Word?",
+      "Need Something?",
+      "Listening...",
+      "What's New Dude?"
+    ];
 
-let response;
-try{
-response=await axios.post("https://sb-ai-mdet.onrender.com/api/ai",{user:id,is_doc,prompt,file_url},{timeout:30000});
-}catch(e){
-return sendMessage(id,{text:"API Failed: "+(e.response?.data?.error?.message||e.message||"Unknown error")},token);
-}
+    const fallback = defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
 
-const res=response?.data;
-if(!res)return sendMessage(id,{text:"API Error: Empty response"},token);
-if(res.status!=="success")return sendMessage(id,{text:"API Error: "+(res?.error?.details||res?.error?.message||"Unknown error")},token);
-if(!res?.data?.response)return sendMessage(id,{text:"API Error: Missing response"},token);
+    if (attachment) {
 
-return sendMessage(id,{text:String(res.data.response)},token);
+      let type = attachment.type || "file";
 
-}catch(err){
-return sendMessage(id,{text:"Bot Error: "+(err?.message||"Unknown error")},token);
-}
-}};
+      return sendMessage(id, {
+        text:
+`Attachment Support Removed
+
+Your message included a ${type} attachment.
+
+The new Mota AI API no longer supports:
+• Images
+• Videos
+• Audio
+• Files
+
+Please send text messages only.
+
+For more information visit:
+https://standbyclothing.xyz/shop`
+      }, token);
+    }
+ if (!prompt) {
+      return sendMessage(id, {
+        text: fallback
+      }, token);
+    }
+
+    const apiUrl = "https://api.motadev.xyz/chat";
+
+    try {
+
+      const response = await axios.post(
+        apiUrl,
+        {
+          user_id: id,
+          message: prompt
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'user-agent':
+              'motadev-ai/2.0 (platform=messenger; type=bot)'
+          },
+          timeout: 30000
+        }
+      );
+
+      const res = response.data;
+
+      if (res.reply) {
+
+        await sendMessage(id, {
+          text: res.reply
+        }, token);
+
+      } else {
+
+        await sendMessage(id, {
+          text:
+`Our AI system is currently experiencing issues.
+
+Please try again shortly.`
+        }, token);
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        'Mvest AI Error:',
+        error.response?.data || error.message
+      );
+
+      await sendMessage(id, {
+        text:
+`Mota AI is currently unavailable.
+
+Please try again later.
+
+System Trace:
+${error.message || "Unknown Error"}
+
+[xaiMotaDevelopersTraceBack]`
+      }, token);
+
+    }
+
+  }
+};
